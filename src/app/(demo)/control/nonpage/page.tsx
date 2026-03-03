@@ -35,7 +35,7 @@ function generateMockPayments(count: number): Payment[] {
       phone: "010-1234-5678",
       ipAddress: "127.0.0.1",
       userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebkit/537.36",
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
   });
 }
@@ -57,8 +57,8 @@ export default function PaymentPage() {
   }, []);
 
   return (
-    <ContentLayout title="결제 관리 시스템">
-      <Card className="h-[calc(100vh-140px)] p-6 overflow-hidden">
+    <ContentLayout title="정도관리 시스템">
+      <Card className="h-[calc(100vh-100px)] p-6 overflow-hidden">
         <AckDataTable
           title="조회 결과"
           // 💡 description을 안 써도 "총 1,000건의 내역이 조회되었습니다."가 자동 출력됩니다.
