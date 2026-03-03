@@ -14,6 +14,9 @@ import { useState } from "react";
 import { AckMultiSelect } from "@/components/controls/ackmultiselect";
 import { AckTextarea } from "@/components/controls/acktextarea";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ExternalLink, Loader2, Mail } from "lucide-react";
+import Link from "next/link";
 
 export default function DashboardPage() {
   // 훅(Hook)  선언
@@ -35,38 +38,60 @@ export default function DashboardPage() {
     { label: "skill4", value: "skill4" },
     { label: "skill5", value: "skill5" },
     { label: "skill6", value: "skill6" },
-    { label: "skill7", value: "skill7" }
+    { label: "skill7", value: "skill7" },
   ];
 
   //라디오버튼 옵션
   const GENDER_OPTIONS = [
     { label: "남성", value: "male" },
     { label: "여성", value: "female" },
-    { label: "선택안함", value: "none" }
+    { label: "선택안함", value: "none" },
   ];
 
   const PLAN_OPTIONS = [
     { label: "베이직", value: "basic", description: "월 9,900원" },
-    { label: "프리미엄", value: "pro", description: "월 19,900원" }
+    { label: "프리미엄", value: "pro", description: "월 19,900원" },
   ];
 
   //select 옵션
   const ROLE_OPTIONS = [
     { label: "관리자", value: "admin" },
     { label: "일반 사용자", value: "user" },
-    { label: "게스트", value: "guest" }
+    { label: "게스트", value: "guest" },
   ];
 
   const DOMAIN_OPTIONS = [
     { label: "gmail.com", value: "gmail.com" },
     { label: "naver.com", value: "naver.com" },
-    { label: "직접 입력", value: "custom" }
+    { label: "직접 입력", value: "custom" },
   ];
 
   return (
     <ContentLayout title="Control Test">
       <Card className="p-5">
         <div className=" space-y-5">
+          {/*🔶Button */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Button>
+              <Mail className="" /> 메일전송
+            </Button>
+            <Button disabled>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              저장 중...
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/control/nonpage">
+                <ExternalLink />
+                Data Table
+              </Link>
+            </Button>
+            <Button variant="default">저장</Button>
+            <Button variant="secondary">취소</Button>
+            <Button variant="outline">필터 설정</Button>
+            <Button variant="ghost">더보기</Button>
+            <Button variant="destructive">회원 탈퇴</Button>
+            <Button variant="link">이용약관</Button>
+          </div>
           {/*🔶Datepicekr */}
           <div className="space-y-3">
             <h1 className=" text-blue-800 font-semibold text-2xl mb-2">
