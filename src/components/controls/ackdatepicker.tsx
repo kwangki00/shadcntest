@@ -10,14 +10,14 @@ import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
-  PopoverTrigger
+  PopoverTrigger,
 } from "@/components/ui/popover";
 
 import {
   Calendar as CalendarIcon,
   CalendarRange,
   CheckCircle2,
-  Circle
+  Circle,
 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { AckLabel } from "./acklabel";
@@ -47,27 +47,25 @@ const PRESET_OPTIONS: { key: NonNullable<PresetType>; label: string }[] = [
   { key: "week", label: "1주일" },
   { key: "month", label: "1개월" },
   { key: "year", label: "1년" },
-  { key: "all", label: "전체" }
+  { key: "all", label: "전체" },
 ];
 
 // ==========================================
 // 2. 유틸리티 함수
 // ==========================================
 
-// 날짜 비교 시 시간(시/분/초)으로 인한 오차를 방지하기 위해 00:00:00으로 정규화
 const normalizeSingle = (d?: Date) => (d ? startOfDay(d) : undefined);
 const normalizeRange = (r?: DateRange) => {
   if (!r) return undefined;
   return {
     from: r.from ? startOfDay(r.from) : undefined,
-    to: r.to ? startOfDay(r.to) : undefined
+    to: r.to ? startOfDay(r.to) : undefined,
   } satisfies DateRange;
 };
 
 // ==========================================
 // 3. 캘린더 툴팁(말풍선) CSS 설정
 // ==========================================
-// 시작일(초록색), 종료일(보라색) 툴팁을 띄우고 2.5초간 애니메이션 적용
 const CALENDAR_TOOLTIP_CLASSES = cn(
   // 공통 툴팁 레이아웃 및 폰트 설정
   "[&_[data-range-start=true]]:before:absolute [&_[data-range-end=true]]:before:absolute [&_[data-selected-single=true]]:before:absolute",
@@ -113,7 +111,7 @@ const CALENDAR_TOOLTIP_CLASSES = cn(
   // 시작/종료일 동일 시 색상 및 텍스트
   "[&_[data-range-start=true][data-range-end=true]]:before:bg-emerald-500",
   "[&_[data-range-start=true][data-range-end=true]]:after:border-t-emerald-500",
-  "[&_[data-range-start=true][data-range-end=true]]:before:content-['시작/종료']"
+  "[&_[data-range-start=true][data-range-end=true]]:before:content-['시작/종료']",
 );
 
 // ==========================================
@@ -130,7 +128,7 @@ export function AckDatePicker({
   description,
   placeholder = "날짜를 선택하세요",
   allowFuture = false,
-  disabled = false
+  disabled = false,
 }: AckDatePickerProps) {
   const id = React.useId();
   const today = React.useMemo(() => startOfDay(new Date()), []);
@@ -138,25 +136,20 @@ export function AckDatePicker({
   // --- 상태 (State) ---
   const [isMobile, setIsMobile] = React.useState(false);
 
-  // date: 팝업 외부에서도 유지되는 확정된 날짜
   const [date, setDate] = React.useState<Date | DateRange | undefined>(
-    mode === "single" ? today : undefined
+    mode === "single" ? today : undefined,
   );
 
-  // tempDate: 팝업 내부에서 달력을 클릭하며 변경하는 임시 날짜 (확인 버튼 클릭 시 date로 반영)
   const [tempDate, setTempDate] = React.useState<Date | DateRange | undefined>(
-    mode === "single" ? today : undefined
+    mode === "single" ? today : undefined,
   );
 
-  // calendarMonth: 현재 달력 화면에 렌더링되고 있는 연/월 상태
   const [calendarMonth, setCalendarMonth] = React.useState<Date>(today);
   const [isOpen, setIsOpen] = React.useState(false);
   const [activePreset, setActivePreset] = React.useState<PresetType>(null);
   const [focusTab, setFocusTab] = React.useState<"from" | "to">("from");
 
   // --- Effect: 반응형 및 상태 동기화 ---
-
-  // 모바일 뷰어 감지
   React.useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)");
     const handler = () => setIsMobile(mq.matches);
@@ -165,7 +158,6 @@ export function AckDatePicker({
     return () => mq.removeEventListener("change", handler);
   }, []);
 
-  // 외부 프롭(mode)이 변경될 경우 내부 상태 초기화 (타입 충돌 방지)
   React.useEffect(() => {
     setIsOpen(false);
     setActivePreset(null);
@@ -182,7 +174,6 @@ export function AckDatePicker({
     }
   }, [mode, today]);
 
-  // 팝업 오픈 시 tempDate를 확정된 date 상태로 동기화 & 달력 월(Month) 스크롤 이동
   React.useEffect(() => {
     if (!isOpen) return;
     setTempDate(date);
@@ -191,7 +182,6 @@ export function AckDatePicker({
       setCalendarMonth((date as Date) || today);
     } else {
       const currentRange = (date as DateRange | undefined) || undefined;
-      // 시작일만 있는 상태면 강제로 종료일 탭으로 포커스
       if (currentRange?.from && !currentRange?.to) {
         setFocusTab("to");
         setCalendarMonth(currentRange.from);
@@ -202,7 +192,6 @@ export function AckDatePicker({
     }
   }, [isOpen, date, mode, today]);
 
-  // 미래 날짜 선택 불가(allowFuture=false)일 경우 연도 드롭다운 제한
   const clampedToYear = React.useMemo(() => {
     const thisYear = today.getFullYear();
     const maxYear = allowFuture ? endYear : Math.min(endYear, thisYear);
@@ -212,12 +201,9 @@ export function AckDatePicker({
   }, [allowFuture, endYear, startYear, today]);
 
   // --- 이벤트 핸들러 ---
-
-  // 달력 날짜 클릭 시 처리
   const handleSelect = (selectedData: Date | DateRange | undefined) => {
     setActivePreset(null);
 
-    // 단일 선택 모드: 즉시 반영 후 팝업 닫기
     if (mode === "single") {
       const normalized = normalizeSingle(selectedData as Date | undefined);
       setDate(normalized);
@@ -225,11 +211,10 @@ export function AckDatePicker({
       return;
     }
 
-    // 기간 선택 모드: 현재 포커스된 탭(from/to)과 클릭된 날짜를 기반으로 기간 재계산
     const newRange = selectedData as DateRange | undefined;
     const current = normalizeRange(tempDate as DateRange | undefined) || {
       from: undefined,
-      to: undefined
+      to: undefined,
     };
 
     let clickedDate: Date | undefined;
@@ -252,7 +237,6 @@ export function AckDatePicker({
     if (!clickedDate) return;
     const normalizedClicked = startOfDay(clickedDate);
 
-    // 시작일/종료일 역전 시 탭 및 날짜 자동 재배치
     if (focusTab === "from") {
       if (current.to && normalizedClicked > current.to) {
         setTempDate({ from: normalizedClicked, to: undefined });
@@ -271,7 +255,6 @@ export function AckDatePicker({
     }
   };
 
-  // 상단 탭(시작일/종료일) 클릭 시 달력 월(Month) 스크롤 점프
   const handleTabClick = (tab: "from" | "to") => {
     setFocusTab(tab);
     const rangeDate = (tempDate as DateRange) || {};
@@ -283,7 +266,6 @@ export function AckDatePicker({
     }
   };
 
-  // 하단 액션 버튼 처리
   const handleConfirm = () => {
     if (mode === "single")
       setDate(normalizeSingle(tempDate as Date | undefined));
@@ -300,7 +282,6 @@ export function AckDatePicker({
     setCalendarMonth(today);
   };
 
-  // 프리셋(오늘, 1주일, 1개월 등) 클릭 처리
   const handlePreset = (preset: PresetType, isInside: boolean) => {
     if (!preset) return;
 
@@ -330,7 +311,6 @@ export function AckDatePicker({
     setActivePreset(preset);
     setCalendarMonth(fromDate);
 
-    // 팝업 외부 프리셋은 클릭 즉시 반영 및 팝업 닫기
     if (!isInside) {
       setDate(newDateRange);
       setTempDate(newDateRange);
@@ -340,8 +320,6 @@ export function AckDatePicker({
   };
 
   // --- UI 렌더링 헬퍼 ---
-
-  // 트리거 버튼(입력창) 텍스트 렌더링
   const renderDateText = () => {
     if (mode === "single") {
       if (!date)
@@ -354,7 +332,7 @@ export function AckDatePicker({
       <div className="flex items-center gap-1">
         <span
           className={cn(
-            rangeDate?.from ? "text-foreground" : "text-muted-foreground"
+            rangeDate?.from ? "text-foreground" : "text-muted-foreground",
           )}
         >
           {rangeDate?.from ? format(rangeDate.from, "yyyy-MM-dd") : "시작일"}
@@ -362,7 +340,7 @@ export function AckDatePicker({
         <span className="text-muted-foreground text-xs">~</span>
         <span
           className={cn(
-            rangeDate?.to ? "text-foreground" : "text-muted-foreground"
+            rangeDate?.to ? "text-foreground" : "text-muted-foreground",
           )}
         >
           {rangeDate?.to ? format(rangeDate.to, "yyyy-MM-dd") : "종료일"}
@@ -371,7 +349,6 @@ export function AckDatePicker({
     );
   };
 
-  // 기간 모드 시 팝업 상단 From-To 탭 렌더링
   const renderTempDateText = () => {
     if (mode !== "range") return null;
     const rangeDate = (tempDate as DateRange) || {};
@@ -385,7 +362,7 @@ export function AckDatePicker({
             focusTab === "from"
               ? "border-primary ring-primary bg-primary/10 text-primary font-semibold shadow-sm"
               : "border-border text-muted-foreground hover:bg-muted/50 hover:text-foreground",
-            rangeDate?.from && focusTab !== "from" && "text-foreground"
+            rangeDate?.from && focusTab !== "from" && "text-foreground",
           )}
         >
           {focusTab === "from" ? (
@@ -409,7 +386,7 @@ export function AckDatePicker({
             focusTab === "to"
               ? "border-primary ring-primary bg-primary/10 text-primary font-semibold shadow-sm"
               : "border-border text-muted-foreground hover:bg-muted/50 hover:text-foreground",
-            rangeDate?.to && focusTab !== "to" && "text-foreground "
+            rangeDate?.to && focusTab !== "to" && "text-foreground ",
           )}
         >
           {focusTab === "to" ? (
@@ -433,10 +410,9 @@ export function AckDatePicker({
     <div
       className={cn(
         "flex sm:flex-row flex-col sm:items-center gap-1 sm:gap-2",
-        disabled && "opacity-50 pointer-events-none"
+        disabled && "opacity-50 pointer-events-none",
       )}
     >
-      {/* 툴팁 애니메이션 (2.5초 지연 후 페이드아웃) */}
       <style
         dangerouslySetInnerHTML={{
           __html: `
@@ -446,7 +422,7 @@ export function AckDatePicker({
             90% { opacity: 1; transform: translateX(0%) translateY(0) scale(1); }
             100% { opacity: 0; transform: translateX(0%) translateY(0) scale(1); }
           }
-        `
+        `,
         }}
       />
 
@@ -459,14 +435,13 @@ export function AckDatePicker({
           className={cn(
             disabled && "cursor-not-allowed",
             labelWidth,
-            labelWidth && "shrink-0 flex-none"
+            labelWidth && "shrink-0 flex-none",
           )}
         />
       )}
 
       <div className="flex flex-wrap items-center gap-1">
         <Popover open={disabled ? false : isOpen} onOpenChange={setIsOpen}>
-          {/* 트리거 버튼 (클릭 시 달력 노출) */}
           <PopoverTrigger asChild>
             <Button
               id={id}
@@ -477,7 +452,7 @@ export function AckDatePicker({
                 mode === "range"
                   ? "w-[240px] max-sm:w-full"
                   : "w-[140px] max-sm:w-full",
-                disabled && "cursor-not-allowed"
+                disabled && "cursor-not-allowed",
               )}
             >
               {mode === "range" ? (
@@ -493,7 +468,6 @@ export function AckDatePicker({
             className="w-auto p-0 border-border shadow-lg max-w-[95vw] overflow-hidden"
             align="start"
           >
-            {/* 단일 선택 모드 UI */}
             {mode === "single" ? (
               <div className="flex flex-col">
                 <Calendar
@@ -525,9 +499,30 @@ export function AckDatePicker({
                 </div>
               </div>
             ) : (
-              // 기간 선택 모드 UI
-              <div className="flex flex-row">
-                <div className="flex flex-col overflow-hidden max-w-[100vw]">
+              // 💡 모바일은 flex-col(위아래 배치), 데스크탑은 flex-row(좌우 배치)로 동작하도록 수정
+              <div className="flex flex-col sm:flex-row">
+                {/* 💡 빠른 선택 패널 (모바일: 상단, 데스크탑: 우측 고정) */}
+                <div className="order-1 sm:order-2 flex flex-row sm:flex-col max-sm:gap-0 gap-2 p-3 bg-muted/10 border-b sm:border-b-0 sm:border-l w-full sm:w-[100px] shrink-0 overflow-x-auto scrollbar-hide">
+                  <span className="hidden sm:block text-xs font-bold text-center text-muted-foreground mb-1">
+                    빠른 선택
+                  </span>
+                  {PRESET_OPTIONS.map((preset) => (
+                    <Button
+                      key={preset.key}
+                      variant={
+                        activePreset === preset.key ? "default" : "outline"
+                      }
+                      size="sm"
+                      onClick={() => handlePreset(preset.key, true)}
+                      className="shrink-0 sm:w-full whitespace-nowrap"
+                    >
+                      {preset.label}
+                    </Button>
+                  ))}
+                </div>
+
+                {/* 달력 영역 (모바일: 하단, 데스크탑: 좌측) */}
+                <div className="order-2 sm:order-1 flex flex-col overflow-hidden max-w-[100vw]">
                   <div className="px-4 py-3 border-b bg-muted/30 text-center">
                     {renderTempDateText()}
                   </div>
@@ -558,7 +553,7 @@ export function AckDatePicker({
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="text-primary"
+                        className="text-primary max-sm:hidden"
                         onClick={() => setCalendarMonth(today)}
                       >
                         오늘로 이동
@@ -578,31 +573,11 @@ export function AckDatePicker({
                     </div>
                   </div>
                 </div>
-
-                {/* 우측 내부 프리셋 패널 (항상 표시) */}
-                <div className="flex flex-col gap-2 p-3 bg-muted/10 border-l w-[100px] shrink-0">
-                  <span className="text-xs font-bold text-center text-muted-foreground mb-1">
-                    빠른 선택
-                  </span>
-                  {PRESET_OPTIONS.map((preset) => (
-                    <Button
-                      key={preset.key}
-                      variant={
-                        activePreset === preset.key ? "default" : "outline"
-                      }
-                      size="sm"
-                      onClick={() => handlePreset(preset.key, true)}
-                    >
-                      {preset.label}
-                    </Button>
-                  ))}
-                </div>
               </div>
             )}
           </PopoverContent>
         </Popover>
 
-        {/* 하단 외부 프리셋 영역 (showPresets 옵션에 따라 제어됨) */}
         {showPresets && mode === "range" && (
           <div className="flex items-center gap-1 bg-muted/50 p-1 rounded-md overflow-x-auto max-w-full">
             {PRESET_OPTIONS.map((preset) => (

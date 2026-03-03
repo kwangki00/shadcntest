@@ -70,28 +70,6 @@ export default function DashboardPage() {
     <ContentLayout title="Control Test">
       <Card className="p-5">
         <div className=" space-y-5">
-          {/*🔶Button */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Button>
-              <Mail className="" /> 메일전송
-            </Button>
-            <Button disabled>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              저장 중...
-            </Button>
-            <Button asChild variant="outline">
-              <Link href="/control/nonpage">
-                <ExternalLink />
-                Data Table
-              </Link>
-            </Button>
-            <Button variant="default">저장</Button>
-            <Button variant="secondary">취소</Button>
-            <Button variant="outline">필터 설정</Button>
-            <Button variant="ghost">더보기</Button>
-            <Button variant="destructive">회원 탈퇴</Button>
-            <Button variant="link">이용약관</Button>
-          </div>
           {/*🔶Datepicekr */}
           <div className="space-y-3">
             <h1 className=" text-blue-800 font-semibold text-2xl mb-2">
@@ -297,6 +275,28 @@ export default function DashboardPage() {
             />
           </div>
           <div className=" border-t-purple-300 border-t-[1px] mt-3"></div>
+          {/*🔶Button */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Button>
+              <Mail className="" /> 메일전송
+            </Button>
+            <Button disabled>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              저장 중...
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/control/nonpage">
+                <ExternalLink />
+                Data Table
+              </Link>
+            </Button>
+            <Button variant="default">저장</Button>
+            <Button variant="secondary">취소</Button>
+            <Button variant="outline">필터 설정</Button>
+            <Button variant="ghost">더보기</Button>
+            <Button variant="destructive">회원 탈퇴</Button>
+            <Button variant="link">이용약관</Button>
+          </div>
         </div>
       </Card>
     </ContentLayout>
