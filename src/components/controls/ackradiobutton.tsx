@@ -32,6 +32,7 @@ export interface AckRadioProps extends React.ComponentPropsWithoutRef<
   /** 에러 메시지 */
   error?: string;
 }
+
 const AckRadio = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitive.Root>,
   AckRadioProps
@@ -48,7 +49,7 @@ const AckRadio = React.forwardRef<
       disabled, // 💡 disabled 속성 추출
       ...props
     },
-    ref
+    ref,
   ) => {
     const generatedId = React.useId();
 
@@ -62,7 +63,7 @@ const AckRadio = React.forwardRef<
             ? "flex-col items-start"
             : "flex-col sm:flex-row sm:items-center",
           disabled && "opacity-50 pointer-events-none", // 💡 비활성화 시 전체 흐리게 및 이벤트 방지
-          className
+          className,
         )}
       >
         {/* 1. 메인 라벨 영역 */}
@@ -84,42 +85,47 @@ const AckRadio = React.forwardRef<
               "flex gap-4 pt-1",
               orientation === "vertical"
                 ? "flex-col gap-2"
-                : "flex-row flex-wrap"
+                : "flex-row flex-wrap",
             )}
             {...props}
           >
             {options.map((option: AckRadioOption, index: number) => {
               const itemId = `${generatedId}-${index}`;
               return (
-                <div
+                <label
                   key={option.value}
-                  className="flex items-center gap-2 group"
+                  htmlFor={itemId}
+                  className={cn(
+                    "flex gap-2 group p-1 -m-1",
+                    option.description ? "items-start" : "items-center",
+                    disabled ? "cursor-not-allowed" : "cursor-pointer",
+                  )}
                 >
                   <RadioGroupItem
                     value={option.value}
                     id={itemId}
                     disabled={disabled}
-                  />{" "}
-                  {/* 💡 개별 아이템에도 disabled 전달 (안전장치) */}
-                  <label
-                    htmlFor={itemId}
-                    className={cn(
-                      "text-sm font-medium leading-none select-none transition-colors",
-                      // 💡 비활성화 시 커서 변경, 활성화 시에만 hover 효과 적용
-                      disabled
-                        ? "cursor-not-allowed"
-                        : "cursor-pointer group-hover:text-primary",
-                      "peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    )}
-                  >
-                    {option.label}
+                    className={cn(option.description && "mt-0.5")}
+                  />
+
+                  <div className="flex flex-col justify-center">
+                    <span
+                      className={cn(
+                        "text-sm font-medium leading-none select-none transition-colors",
+                        !disabled && "group-hover:text-primary",
+                        disabled && "opacity-70",
+                      )}
+                    >
+                      {option.label}
+                    </span>
+
                     {option.description && (
-                      <span className="block text-xs font-normal text-muted-foreground mt-0.5">
+                      <span className="block text-xs font-normal text-muted-foreground mt-1">
                         {option.description}
                       </span>
                     )}
-                  </label>
-                </div>
+                  </div>
+                </label>
               );
             })}
           </RadioGroup>
@@ -133,7 +139,7 @@ const AckRadio = React.forwardRef<
         </div>
       </div>
     );
-  }
+  },
 );
 
 AckRadio.displayName = "AckRadio";

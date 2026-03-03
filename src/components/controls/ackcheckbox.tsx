@@ -1,5 +1,7 @@
+"use client";
+
 import * as React from "react";
-import * as CheckboxPrimitive from "@radix-ui/react-checkbox"; // 💡 타입 참조를 위해 추가
+import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AckLabel } from "./acklabel";
@@ -27,10 +29,10 @@ const AckCheckbox = React.forwardRef<
       error,
       direction = "horizontal",
       id: propsId,
-      disabled, // 💡 disabled 속성을 명시적으로 추출
+      disabled,
       ...props
     },
-    ref
+    ref,
   ) => {
     const generatedId = React.useId();
     const id = propsId || generatedId;
@@ -39,19 +41,21 @@ const AckCheckbox = React.forwardRef<
       <div
         className={cn(
           "flex flex-col gap-1.5",
-          disabled && "opacity-50 pointer-events-none", // 💡 비활성화 시 전체 흐리게 및 마우스 이벤트 방지
-          className
+          disabled && "opacity-50 pointer-events-none",
+          className,
         )}
       >
-        <div
+        {/* 💡 [핵심 수정] div를 label로 변경하여 내부 모든 영역(빈 공간 포함)을 클릭 가능하게 만듦 */}
+        <label
+          htmlFor={id} // 라벨 전체를 클릭했을 때 체크박스가 반응하도록 연결
           className={cn(
-            "flex gap-2",
+            "flex gap-2 group", // group을 추가하여 체크박스에 hover 효과를 연동할 수도 있습니다.
             direction === "vertical"
               ? "flex-col items-start"
-              : "flex-row items-start"
+              : "flex-row items-start",
+            disabled ? "cursor-not-allowed" : "cursor-pointer", // 💡 빈 공간에 마우스를 올려도 손가락 포인터가 나오도록
           )}
         >
-          {/* 💡 shadcn/ui Checkbox에 disabled 속성 전달 */}
           <Checkbox
             id={id}
             ref={ref}
@@ -66,15 +70,14 @@ const AckCheckbox = React.forwardRef<
               label={label}
               required={required}
               description={description}
-              // 💡 체크박스 옆에서는 양끝 정렬 클래스를 무효화하기 위해 min-width를 해제합니다.
-              // 💡 disabled 상태에 따라 커서 모양을 동적으로 변경합니다.
               className={cn(
                 "mb-0 font-medium select-none min-w-0 leading-normal",
-                disabled ? "cursor-not-allowed" : "cursor-pointer"
+                // 부모 label에서 이미 cursor를 처리하므로 여기선 상속받게 둡니다.
+                disabled ? "cursor-not-allowed" : "cursor-pointer",
               )}
             />
           )}
-        </div>
+        </label>
 
         {error && (
           <p className="text-[0.8rem] font-medium text-destructive mt-0.5 ml-6">
@@ -83,7 +86,7 @@ const AckCheckbox = React.forwardRef<
         )}
       </div>
     );
-  }
+  },
 );
 
 AckCheckbox.displayName = "AckCheckbox";
