@@ -279,10 +279,6 @@ export default function DashboardPage() {
               placeholder="기술을 선택해주세요"
               error="최소 하나 이상의 기술을 선택해야 합니다."
             />
-            {/* 결과 확인용 */}
-            <div className="text-sm text-muted-foreground mt-4">
-              현재 선택된 값: {JSON.stringify(selectedSkills)}
-            </div>
           </div>{" "}
           <div className=" border-t-purple-300 border-t-[1px] mt-3"></div>
           {/*🔶Select */}

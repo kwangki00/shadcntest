@@ -92,28 +92,47 @@ export const AckMultiSelect = React.forwardRef<
       options.length > 0 && selectedValues.length === options.length;
 
     const handleSelect = (currentValue: string) => {
-      if (localError) setLocalError(undefined);
-
+      // 1. 새롭게 선택될 값들의 배열을 먼저 계산합니다.
       const newValues = selectedValues.includes(currentValue)
         ? selectedValues.filter((v) => v !== currentValue)
         : [...selectedValues, currentValue];
 
+      // 💡 [핵심 추가] 부모로부터 에러가 주어졌을 때 실시간 상태 토글
+      if (error) {
+        if (newValues.length > 0) {
+          setLocalError(undefined); // 하나라도 선택하면 에러 숨김
+        } else {
+          setLocalError(error); // 다 지워서 0개가 되면 원래 에러 복구
+        }
+      }
+
       setSelectedValues(newValues);
-      if (onChange) onChange(newValues);
+      if (onChange) {
+        onChange(newValues);
+      }
     };
 
     const handleSelectAll = () => {
-      if (localError) setLocalError(undefined);
-
+      // 1. 새롭게 선택될 값들의 배열을 계산합니다 (전체 선택 or 전체 해제).
       let newValues: string[] = [];
       if (!isAllSelected) {
         newValues = options.map((opt) => opt.value);
       }
 
-      setSelectedValues(newValues);
-      if (onChange) onChange(newValues);
-    };
+      // 💡 [핵심 추가] 전체 해제로 0개가 되면 에러 복구, 전체 선택하면 에러 숨김
+      if (error) {
+        if (newValues.length > 0) {
+          setLocalError(undefined);
+        } else {
+          setLocalError(error);
+        }
+      }
 
+      setSelectedValues(newValues);
+      if (onChange) {
+        onChange(newValues);
+      }
+    };
     const selectedLabels = options
       .filter((opt) => selectedValues.includes(opt.value))
       .map((opt) => opt.label);
@@ -223,7 +242,7 @@ export const AckMultiSelect = React.forwardRef<
                     </div>
                   )}
                 </div>
-                <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+                <ChevronDown className="h-4 w-4 shrink-0 opacity-50 ml-1" />
               </button>
             </PopoverTrigger>
 

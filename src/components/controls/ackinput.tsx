@@ -1,6 +1,8 @@
+"use client";
+
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { Input } from "@/components/ui/input"; // 💡 shadcn/ui 기본 인풋 임포트
+import { Input } from "@/components/ui/input";
 import { AckLabel } from "./acklabel";
 import { AlertCircle, Eye, EyeOff } from "lucide-react";
 import {
@@ -11,13 +13,12 @@ import {
 } from "@/components/ui/tooltip";
 
 export interface AckInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label?: string; /** 라벨 텍스트 */
-  labelWidth?: string; //  라벨 너비 (예: "w-[80px]", "w-24" 등)
-  required?: boolean; /** 필수 입력 여부 */
-  description?: React.ReactNode; /** 라벨 옆 추가 설명 */
-
-  error?: string; /** 에러 메시지 */
-  numeric?: boolean; /** 숫자만 입력 가능 여부 */
+  label?: string;
+  labelWidth?: string;
+  required?: boolean;
+  description?: React.ReactNode;
+  error?: string;
+  numeric?: boolean;
 }
 
 const AckInput = React.forwardRef<HTMLInputElement, AckInputProps>(
@@ -41,15 +42,40 @@ const AckInput = React.forwardRef<HTMLInputElement, AckInputProps>(
     const generatedId = React.useId();
     const id = propsId || generatedId;
 
-    // 💡 비밀번호 토글 상태 관리
     const [showPassword, setShowPassword] = React.useState(false);
     const isPasswordType = type === "password";
 
-    // 💡 숫자만 입력받도록 처리하는 핸들러
+    // 💡 [추가] 에러 상태를 컴포넌트 내부에서 즉각적으로 제어하기 위한 로컬 상태
+    const [localError, setLocalError] = React.useState<string | undefined>(
+      error,
+    );
+
+    // 💡 부모로부터 새로운 에러가 들어오면 동기화
+    React.useEffect(() => {
+      setLocalError(error);
+    }, [error]);
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      let value = e.target.value;
+
+      // 숫자만 입력받도록 처리
       if (numeric) {
-        e.target.value = e.target.value.replace(/[^0-9]/g, "");
+        value = value.replace(/[^0-9]/g, "");
+        e.target.value = value;
       }
+
+      // 💡 [핵심 추가] 입력값에 따른 실시간 에러 상태 토글
+      // 외부에서 에러(error)가 주어졌을 때만 이 로직이 작동합니다.
+      if (error) {
+        if (value.length > 0) {
+          // 뭔가 입력했으면 에러 숨김
+          setLocalError(undefined);
+        } else {
+          // 다 지워서 빈칸이 되면 원래 에러 복구
+          setLocalError(error);
+        }
+      }
+
       onChange?.(e);
     };
 
@@ -60,7 +86,6 @@ const AckInput = React.forwardRef<HTMLInputElement, AckInputProps>(
           disabled && "opacity-50 pointer-events-none",
         )}
       >
-        {/* 통합된 라벨 영역 */}
         {label && (
           <AckLabel
             htmlFor={id}
@@ -75,7 +100,6 @@ const AckInput = React.forwardRef<HTMLInputElement, AckInputProps>(
           />
         )}
 
-        {/* 💡 에러 메시지를 포함한 인풋 컨테이너 (세로 정렬용) */}
         <div className="relative flex-1 w-full flex items-center">
           <Input
             type={isPasswordType && showPassword ? "text" : type}
@@ -86,26 +110,25 @@ const AckInput = React.forwardRef<HTMLInputElement, AckInputProps>(
             inputMode={numeric ? "numeric" : undefined}
             className={cn(
               "w-full sm:w-[180px]",
-              error && "border-destructive focus-visible:ring-destructive",
-              // 💡 아이콘 공간 확보 (패스워드 토글 + 에러 아이콘 고려)
-              (error || isPasswordType) && "pr-10",
-              error && isPasswordType && "pr-20",
+              // 💡 error 대신 localError 기준으로 렌더링
+              localError &&
+                "border-destructive text-destructive focus-visible:ring-destructive",
+              (localError || isPasswordType) && "pr-10",
+              localError && isPasswordType && "pr-20",
               disabled && "cursor-not-allowed",
               className,
             )}
             {...props}
           />
 
-          {/* 💡 아이콘 영역 (비밀번호 토글 & 에러 메시지) */}
-          {(isPasswordType || error) && (
+          {/* 아이콘 영역 */}
+          {(isPasswordType || localError) && (
             <div
               className={cn(
                 "flex items-center justify-end",
-                // 아이콘 개수에 따라 왼쪽으로 당기는 위치 조정 (Input 내부로 배치)
-                error && isPasswordType ? "-ml-16" : "-ml-8",
+                localError && isPasswordType ? "-ml-16" : "-ml-8",
               )}
             >
-              {/* 1. 비밀번호 토글 버튼 */}
               {isPasswordType && (
                 <button
                   type="button"
@@ -124,8 +147,8 @@ const AckInput = React.forwardRef<HTMLInputElement, AckInputProps>(
                 </button>
               )}
 
-              {/* 2. 에러 메시지 툴팁 */}
-              {error && (
+              {/* 💡 error 대신 localError 렌더링 */}
+              {localError && (
                 <TooltipProvider>
                   <Tooltip delayDuration={200}>
                     <TooltipTrigger asChild>
@@ -137,7 +160,7 @@ const AckInput = React.forwardRef<HTMLInputElement, AckInputProps>(
                       side="bottom"
                       className="bg-destructive text-destructive-foreground border-destructive"
                     >
-                      <p>{error}</p>
+                      <p>{localError}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
