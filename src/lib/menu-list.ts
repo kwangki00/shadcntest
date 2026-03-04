@@ -5,7 +5,10 @@ import {
   Bookmark,
   SquarePen,
   LayoutGrid,
-  LucideIcon
+  LucideIcon,
+  LayoutDashboard,
+  LayoutIcon,
+  Table,
 } from "lucide-react";
 
 type Submenu = {
@@ -30,35 +33,30 @@ type Group = {
 export function getMenuList(pathname: string): Group[] {
   return [
     {
-      groupLabel: "",
+      groupLabel: "Controls",
       menus: [
         {
           href: "/dashboard",
           label: "Control Test",
-          icon: LayoutGrid,
-          submenus: []
-        }
-      ]
-    },
-    {
-      groupLabel: "",
-      menus: [
+          icon: LayoutDashboard,
+          submenus: [],
+        },
         {
           href: "",
           label: "데이터 테이블 Test",
-          icon: LayoutGrid,
+          icon: Table,
           submenus: [
             {
               href: "/control",
-              label: "Page Tabel"
+              label: "Page Tabel",
             },
             {
               href: "/control/nonpage",
-              label: "Virtual Table"
-            }
-          ]
-        }
-      ]
+              label: "Virtual Table",
+            },
+          ],
+        },
+      ],
     },
 
     {
@@ -71,25 +69,25 @@ export function getMenuList(pathname: string): Group[] {
           submenus: [
             {
               href: "/posts",
-              label: "All Posts"
+              label: "All Posts",
             },
             {
               href: "/posts/new",
-              label: "New Post"
-            }
-          ]
+              label: "New Post",
+            },
+          ],
         },
         {
           href: "/categories",
           label: "Categories",
-          icon: Bookmark
+          icon: Bookmark,
         },
         {
           href: "/tags",
           label: "Tags",
-          icon: Tag
-        }
-      ]
+          icon: Tag,
+        },
+      ],
     },
     {
       groupLabel: "Settings",
@@ -97,14 +95,14 @@ export function getMenuList(pathname: string): Group[] {
         {
           href: "/users",
           label: "Users",
-          icon: Users
+          icon: Users,
         },
         {
           href: "/account",
           label: "Account",
-          icon: Settings
-        }
-      ]
-    }
+          icon: Settings,
+        },
+      ],
+    },
   ];
 }
