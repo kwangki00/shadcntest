@@ -18,8 +18,6 @@ import { AckRadio } from "@/components/controls/ackradiobutton";
 import { AckCheckbox } from "@/components/controls/ackcheckbox";
 import { AckSwitch } from "@/components/controls/ackswitch";
 import { AckDatePicker } from "@/components/controls/ackdatepicker";
-import { X } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 export default function TabControlPage() {
   // 1. 탭 목록 및 활성 탭 상태 관리
@@ -29,22 +27,6 @@ export default function TabControlPage() {
     { id: "details", label: "상세 정보" },
     { id: "settings", label: "설정" },
   ]);
-
-  // 2. 탭 닫기 핸들러
-  const handleCloseTab = (e: React.MouseEvent, tabId: string) => {
-    e.stopPropagation(); // 탭 선택 이벤트 전파 방지
-
-    const newTabs = tabs.filter((tab) => tab.id !== tabId);
-    setTabs(newTabs);
-
-    // 닫으려는 탭이 현재 활성화된 탭이라면, 다른 탭(이전 탭)을 활성화
-    if (activeTab === tabId && newTabs.length > 0) {
-      const index = tabs.findIndex((t) => t.id === tabId);
-      // 이전 탭 선택 (없으면 첫 번째)
-      const nextTab = newTabs[Math.max(0, index - 1)];
-      setActiveTab(nextTab.id);
-    }
-  };
 
   // 3. 탭 ID에 따른 컨텐츠 렌더링 함수
   const renderTabContent = (id: string) => {
@@ -154,19 +136,9 @@ export default function TabControlPage() {
               <TabsTrigger
                 key={tab.id}
                 value={tab.id}
-                className="relative flex items-center gap-2 pr-8 pl-4 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+                className="relative flex items-center gap-2 px-4 data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
                 {tab.label}
-                <div
-                  role="button"
-                  onClick={(e) => handleCloseTab(e, tab.id)}
-                  className={cn(
-                    "absolute right-1.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full",
-                    "opacity-50 hover:opacity-100 hover:bg-muted-foreground/20 transition-all",
-                  )}
-                >
-                  <X className="w-3.5 h-3.5" />
-                </div>
               </TabsTrigger>
             ))}
           </TabsList>
@@ -176,25 +148,6 @@ export default function TabControlPage() {
               {renderTabContent(tab.id)}
             </TabsContent>
           ))}
-
-          {tabs.length === 0 && (
-            <div className="flex flex-col items-center justify-center h-64 text-muted-foreground border rounded-md mt-4 bg-muted/10">
-              <p>열려있는 탭이 없습니다.</p>
-              <Button
-                variant="link"
-                onClick={() => {
-                  setTabs([
-                    { id: "general", label: "기본 정보" },
-                    { id: "details", label: "상세 정보" },
-                    { id: "settings", label: "설정" },
-                  ]);
-                  setActiveTab("general");
-                }}
-              >
-                탭 다시 열기
-              </Button>
-            </div>
-          )}
         </Tabs>
       </div>
     </ContentLayout>

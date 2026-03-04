@@ -5,6 +5,7 @@ export interface Tab {
   id: string;
   label: string;
   href: string;
+  closable?: boolean;
 }
 
 interface TabState {
@@ -18,7 +19,14 @@ interface TabState {
 export const useTabStore = create<TabState>()(
   persist(
     (set, get) => ({
-      tabs: [{ id: "/dashboard", label: "Dashboard", href: "/dashboard" }],
+      tabs: [
+        {
+          id: "/dashboard",
+          label: "Dashboard",
+          href: "/dashboard",
+          closable: false,
+        },
+      ],
       activeTab: "/dashboard",
       addTab: (tab) => {
         const { tabs } = get();

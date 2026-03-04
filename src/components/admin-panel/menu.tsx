@@ -65,7 +65,12 @@ export function Menu({ isOpen }: MenuProps) {
                               onClick={(e) => {
                                 // Link의 기본 이동 방지 (필요시) 및 탭 추가
                                 // e.preventDefault(); // Next.js 라우팅을 완전히 막고 싶다면 주석 해제
-                                addTab({ id: href, label: label, href: href });
+                                addTab({
+                                  id: href,
+                                  label: label,
+                                  href: href,
+                                  closable: true,
+                                });
                                 // router.push(href); // URL 동기화가 필요하다면 유지
                               }}
                               variant={

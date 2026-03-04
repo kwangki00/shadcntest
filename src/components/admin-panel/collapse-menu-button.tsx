@@ -108,7 +108,7 @@ export function CollapseMenuButton({
           <Button
             key={index}
             onClick={() => {
-              addTab({ id: href, label: label, href: href });
+              addTab({ id: href, label: label, href: href, closable: true });
             }}
             variant={
               (active === undefined && pathname === href) || active
@@ -179,7 +179,7 @@ export function CollapseMenuButton({
           <DropdownMenuItem key={index} asChild>
             <Link
               onClick={() => {
-                addTab({ id: href, label: label, href: href });
+                addTab({ id: href, label: label, href: href, closable: true });
               }}
               className={`cursor-pointer ${
                 ((active === undefined && pathname === href) || active) &&
