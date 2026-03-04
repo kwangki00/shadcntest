@@ -5,6 +5,13 @@ import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AckLabel } from "./acklabel";
+import { AlertCircle } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export interface AckCheckboxProps extends React.ComponentPropsWithoutRef<
   typeof CheckboxPrimitive.Root
@@ -77,13 +84,25 @@ const AckCheckbox = React.forwardRef<
               )}
             />
           )}
-        </label>
 
-        {error && (
-          <p className="text-[0.8rem] font-medium text-destructive mt-0.5 ml-6">
-            {error}
-          </p>
-        )}
+          {error && (
+            <TooltipProvider>
+              <Tooltip delayDuration={200}>
+                <TooltipTrigger asChild>
+                  <div className="h-4 w-4 flex items-center justify-center cursor-help mt-0.5">
+                    <AlertCircle className="h-3.5 w-3.5 text-destructive" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="bottom"
+                  className="bg-destructive text-destructive-foreground border-destructive"
+                >
+                  <p>{error}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </label>
       </div>
     );
   },

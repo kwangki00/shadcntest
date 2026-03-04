@@ -18,9 +18,16 @@ import {
   CalendarRange,
   CheckCircle2,
   Circle,
+  AlertCircle,
 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { AckLabel } from "./acklabel";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 // ==========================================
 // 1. 타입 및 인터페이스
@@ -38,6 +45,7 @@ interface AckDatePickerProps {
   placeholder?: string; // 값이 없을 때 표시될 텍스트
   disabled?: boolean; // 폼 컨트롤 전체 비활성화 여부
   allowFuture?: boolean; // 미래 날짜 선택 허용 여부
+  error?: string; // 에러 메시지
 }
 
 type PresetType = "today" | "week" | "month" | "year" | "all" | null;
@@ -129,6 +137,7 @@ export function AckDatePicker({
   placeholder = "날짜를 선택하세요",
   allowFuture = false,
   disabled = false,
+  error,
 }: AckDatePickerProps) {
   const id = React.useId();
   const today = React.useMemo(() => startOfDay(new Date()), []);
@@ -199,6 +208,17 @@ export function AckDatePicker({
     const safeToYear = Math.max(maxYear, safeFromYear);
     return { fromYear: safeFromYear, toYear: safeToYear };
   }, [allowFuture, endYear, startYear, today]);
+
+  // 💡 에러 표시 여부 계산: 에러 메시지가 있고, 선택된 날짜가 없을 때만 표시
+  const isErrorVisible = React.useMemo(() => {
+    if (!error) return false;
+    if (mode === "single") {
+      return !date;
+    } else {
+      // range 모드일 경우 from 날짜가 없으면 에러 표시
+      return !(date as DateRange)?.from;
+    }
+  }, [error, date, mode]);
 
   // --- 이벤트 핸들러 ---
   const handleSelect = (selectedData: Date | DateRange | undefined) => {
@@ -441,142 +461,171 @@ export function AckDatePicker({
       )}
 
       <div className="flex flex-wrap items-center gap-1">
-        <Popover open={disabled ? false : isOpen} onOpenChange={setIsOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              id={id}
-              variant={"outline"}
-              disabled={disabled}
-              className={cn(
-                "justify-start text-left font-normal px-3 py-1 gap-2",
-                mode === "range"
-                  ? "w-[240px] max-sm:w-full"
-                  : "w-[140px] max-sm:w-full",
-                disabled && "cursor-not-allowed",
-              )}
+        <div
+          className={cn(
+            "relative",
+            mode === "range"
+              ? "w-[240px] max-sm:w-full"
+              : "w-[140px] max-sm:w-full",
+          )}
+        >
+          <Popover open={disabled ? false : isOpen} onOpenChange={setIsOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                id={id}
+                variant={"outline"}
+                disabled={disabled}
+                className={cn(
+                  "justify-start text-left font-normal px-3 py-1 gap-2",
+                  "w-full",
+                  disabled && "cursor-not-allowed",
+                  isErrorVisible &&
+                    "border-destructive focus-visible:ring-destructive pr-10",
+                )}
+              >
+                {mode === "range" ? (
+                  <CalendarRange className="h-4 w-4 text-muted-foreground" />
+                ) : (
+                  <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                )}
+                {renderDateText()}
+              </Button>
+            </PopoverTrigger>
+
+            <PopoverContent
+              className="w-auto p-0 border-border shadow-lg max-w-[95vw] overflow-hidden"
+              align="start"
             >
-              {mode === "range" ? (
-                <CalendarRange className="h-4 w-4 text-muted-foreground" />
-              ) : (
-                <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-              )}
-              {renderDateText()}
-            </Button>
-          </PopoverTrigger>
-
-          <PopoverContent
-            className="w-auto p-0 border-border shadow-lg max-w-[95vw] overflow-hidden"
-            align="start"
-          >
-            {mode === "single" ? (
-              <div className="flex flex-col">
-                <Calendar
-                  mode="single"
-                  month={calendarMonth}
-                  onMonthChange={setCalendarMonth}
-                  selected={date as Date | undefined}
-                  onSelect={handleSelect}
-                  initialFocus
-                  locale={ko}
-                  captionLayout="dropdown"
-                  fromYear={clampedToYear.fromYear}
-                  toYear={clampedToYear.toYear}
-                  toMonth={allowFuture ? undefined : today}
-                  disabled={allowFuture ? undefined : { after: today }}
-                />
-                <div className="p-2 border-t text-center">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="w-full text-muted-foreground"
-                    onClick={() => {
-                      setDate(today);
-                      setIsOpen(false);
-                    }}
-                  >
-                    오늘 날짜 선택
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              // 💡 모바일은 flex-col(위아래 배치), 데스크탑은 flex-row(좌우 배치)로 동작하도록 수정
-              <div className="flex flex-col sm:flex-row">
-                {/* 💡 빠른 선택 패널 (모바일: 상단, 데스크탑: 우측 고정) */}
-                <div className="order-1 sm:order-2 flex flex-row sm:flex-col max-sm:gap-0 gap-2 p-3 bg-muted/10 border-b sm:border-b-0 sm:border-l w-full sm:w-[100px] shrink-0 overflow-x-auto scrollbar-hide">
-                  <span className="hidden sm:block text-xs font-bold text-center text-muted-foreground mb-1">
-                    빠른 선택
-                  </span>
-                  {PRESET_OPTIONS.map((preset) => (
-                    <Button
-                      key={preset.key}
-                      variant={
-                        activePreset === preset.key ? "default" : "outline"
-                      }
-                      size="sm"
-                      onClick={() => handlePreset(preset.key, true)}
-                      className="shrink-0 sm:w-full whitespace-nowrap"
-                    >
-                      {preset.label}
-                    </Button>
-                  ))}
-                </div>
-
-                {/* 달력 영역 (모바일: 하단, 데스크탑: 좌측) */}
-                <div className="order-2 sm:order-1 flex flex-col overflow-hidden max-w-[100vw]">
-                  <div className="px-4 py-3 border-b bg-muted/30 text-center">
-                    {renderTempDateText()}
-                  </div>
-
+              {mode === "single" ? (
+                <div className="flex flex-col">
                   <Calendar
-                    mode="range"
-                    className={CALENDAR_TOOLTIP_CLASSES}
+                    mode="single"
                     month={calendarMonth}
                     onMonthChange={setCalendarMonth}
-                    selected={tempDate as DateRange | undefined}
+                    selected={date as Date | undefined}
                     onSelect={handleSelect}
                     initialFocus
                     locale={ko}
-                    numberOfMonths={isMobile ? 1 : 2}
                     captionLayout="dropdown"
                     fromYear={clampedToYear.fromYear}
                     toYear={clampedToYear.toYear}
                     toMonth={allowFuture ? undefined : today}
                     disabled={allowFuture ? undefined : { after: today }}
                   />
+                  <div className="p-2 border-t text-center">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full text-muted-foreground"
+                      onClick={() => {
+                        setDate(today);
+                        setIsOpen(false);
+                      }}
+                    >
+                      오늘 날짜 선택
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                // 💡 모바일은 flex-col(위아래 배치), 데스크탑은 flex-row(좌우 배치)로 동작하도록 수정
+                <div className="flex flex-col sm:flex-row">
+                  {/* 💡 빠른 선택 패널 (모바일: 상단, 데스크탑: 우측 고정) */}
+                  <div className="order-1 sm:order-2 flex flex-row sm:flex-col max-sm:gap-0 gap-2 p-3 bg-muted/10 border-b sm:border-b-0 sm:border-l w-full sm:w-[100px] shrink-0 overflow-x-auto scrollbar-hide">
+                    <span className="hidden sm:block text-xs font-bold text-center text-muted-foreground mb-1">
+                      빠른 선택
+                    </span>
+                    {PRESET_OPTIONS.map((preset) => (
+                      <Button
+                        key={preset.key}
+                        variant={
+                          activePreset === preset.key ? "default" : "outline"
+                        }
+                        size="sm"
+                        onClick={() => handlePreset(preset.key, true)}
+                        className="shrink-0 sm:w-full whitespace-nowrap"
+                      >
+                        {preset.label}
+                      </Button>
+                    ))}
+                  </div>
 
-                  {/* 하단 제어 버튼 모음 */}
-                  <div className="flex items-center justify-between p-3 border-t gap-2">
-                    <div className="flex items-center gap-1">
-                      <Button variant="ghost" size="sm" onClick={handleReset}>
-                        초기화
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-primary max-sm:hidden"
-                        onClick={() => setCalendarMonth(today)}
-                      >
-                        오늘로 이동
-                      </Button>
+                  {/* 달력 영역 (모바일: 하단, 데스크탑: 좌측) */}
+                  <div className="order-2 sm:order-1 flex flex-col overflow-hidden max-w-[100vw]">
+                    <div className="px-4 py-3 border-b bg-muted/30 text-center">
+                      {renderTempDateText()}
                     </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleCancel}
-                      >
-                        취소
-                      </Button>
-                      <Button size="sm" onClick={handleConfirm}>
-                        확인
-                      </Button>
+
+                    <Calendar
+                      mode="range"
+                      className={CALENDAR_TOOLTIP_CLASSES}
+                      month={calendarMonth}
+                      onMonthChange={setCalendarMonth}
+                      selected={tempDate as DateRange | undefined}
+                      onSelect={handleSelect}
+                      initialFocus
+                      locale={ko}
+                      numberOfMonths={isMobile ? 1 : 2}
+                      captionLayout="dropdown"
+                      fromYear={clampedToYear.fromYear}
+                      toYear={clampedToYear.toYear}
+                      toMonth={allowFuture ? undefined : today}
+                      disabled={allowFuture ? undefined : { after: today }}
+                    />
+
+                    {/* 하단 제어 버튼 모음 */}
+                    <div className="flex items-center justify-between p-3 border-t gap-2">
+                      <div className="flex items-center gap-1">
+                        <Button variant="ghost" size="sm" onClick={handleReset}>
+                          초기화
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-primary max-sm:hidden"
+                          onClick={() => setCalendarMonth(today)}
+                        >
+                          오늘로 이동
+                        </Button>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleCancel}
+                        >
+                          취소
+                        </Button>
+                        <Button size="sm" onClick={handleConfirm}>
+                          확인
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </PopoverContent>
-        </Popover>
+              )}
+            </PopoverContent>
+          </Popover>
+
+          {isErrorVisible && (
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 z-10">
+              <TooltipProvider>
+                <Tooltip delayDuration={200}>
+                  <TooltipTrigger asChild>
+                    <div className="h-8 w-8 flex items-center justify-center cursor-help">
+                      <AlertCircle className="h-4 w-4 text-destructive" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    side="bottom"
+                    className="bg-destructive text-destructive-foreground border-destructive"
+                  >
+                    <p>{error}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          )}
+        </div>
 
         {showPresets && mode === "range" && (
           <div className="flex items-center gap-1 bg-muted/50 p-1 rounded-md overflow-x-auto max-w-full">

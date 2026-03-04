@@ -5,6 +5,13 @@ import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
 import { cn } from "@/lib/utils";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { AckLabel } from "./acklabel"; // AckLabel 파일 경로를 확인하세요.
+import { AlertCircle } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 /** * 라디오 옵션 아이템 인터페이스
  */
@@ -67,13 +74,32 @@ const AckRadio = React.forwardRef<
         )}
       >
         {/* 1. 메인 라벨 영역 */}
-        {label && (
-          <AckLabel
-            label={label}
-            required={required}
-            description={labelDescription}
-            className={cn("mb-0", disabled && "cursor-not-allowed")} // 💡 메인 라벨 커서 변경
-          />
+        {(label || error) && (
+          <div className="flex items-center gap-2">
+            {label && (
+              <AckLabel
+                label={label}
+                required={required}
+                description={labelDescription}
+                className={cn("mb-0", disabled && "cursor-not-allowed")} // 💡 메인 라벨 커서 변경
+              />
+            )}
+            {error && (
+              <TooltipProvider>
+                <Tooltip delayDuration={200}>
+                  <TooltipTrigger asChild>
+                    <AlertCircle className="h-4 w-4 text-destructive cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent
+                    side="bottom"
+                    className="bg-destructive text-destructive-foreground border-destructive"
+                  >
+                    <p>{error}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
         )}
 
         {/* 2. 라디오 그룹 본체 */}
@@ -129,13 +155,6 @@ const AckRadio = React.forwardRef<
               );
             })}
           </RadioGroup>
-
-          {/* 3. 에러 메시지 출력 (그룹 아래에 위치) */}
-          {error && (
-            <p className="text-[0.8rem] font-medium text-destructive mt-1">
-              {error}
-            </p>
-          )}
         </div>
       </div>
     );
