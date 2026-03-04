@@ -42,6 +42,12 @@ export function getMenuList(pathname: string): Group[] {
           submenus: [],
         },
         {
+          href: "/control/tabcontrol",
+          label: "Tab ControlTest",
+          icon: LayoutDashboard,
+          submenus: [],
+        },
+        {
           href: "",
           label: "데이터 테이블 Test",
           icon: Table,
