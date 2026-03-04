@@ -9,7 +9,7 @@ import {
   getSortedRowModel,
   SortingState,
   useReactTable,
-  Row
+  Row,
 } from "@tanstack/react-table";
 
 import {
@@ -17,7 +17,7 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
+  TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -26,7 +26,7 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-  Loader2
+  Loader2,
 } from "lucide-react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 
@@ -60,7 +60,7 @@ const AckDataTableRow = React.memo(
     selectOnRowClick,
     virtualRef,
     dataIndex,
-    isSelected
+    isSelected,
   }: {
     row: Row<any>;
     onRowClick?: (row: any) => void;
@@ -89,7 +89,7 @@ const AckDataTableRow = React.memo(
         className={cn(
           "transition-colors hover:bg-muted/50",
           onRowClick || selectOnRowClick ? "cursor-pointer" : "cursor-default",
-          isSelected && "bg-muted/30"
+          isSelected && "bg-muted/30",
         )}
       >
         {row.getVisibleCells().map((cell) => (
@@ -112,7 +112,7 @@ const AckDataTableRow = React.memo(
       prev.onRowClick === next.onRowClick &&
       prev.selectOnRowClick === next.selectOnRowClick
     );
-  }
+  },
 );
 AckDataTableRow.displayName = "AckDataTableRow";
 
@@ -128,7 +128,7 @@ export function AckDataTable<TData, TValue>({
   title,
   description,
   selectOnRowClick = true,
-  enableVirtualization = false
+  enableVirtualization = false,
 }: AckDataTableProps<TData, TValue>) {
   // --- 테이블 상태 관리 (정렬, 선택) ---
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -139,7 +139,7 @@ export function AckDataTable<TData, TValue>({
     data,
     columns,
     defaultColumn: {
-      enableSorting: false // 💡 기본적으로 모든 컬럼의 정렬을 비활성화합니다.
+      enableSorting: false, // 💡 기본적으로 모든 컬럼의 정렬을 비활성화합니다.
     },
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
@@ -151,8 +151,8 @@ export function AckDataTable<TData, TValue>({
     onRowSelectionChange: setRowSelection,
     state: {
       sorting,
-      rowSelection
-    }
+      rowSelection,
+    },
   });
 
   const { rows } = table.getRowModel();
@@ -164,20 +164,20 @@ export function AckDataTable<TData, TValue>({
     getScrollElement: () => parentRef.current, // 스크롤 감시 대상
     estimateSize: () => 40, // 각 행의 평균 높이
     overscan: 5, // 화면 밖 위아래에 미리 그려둘 행의 수
-    enabled: enableVirtualization // 옵션에 따라 가상화 켜고 끄기
+    enabled: enableVirtualization, // 옵션에 따라 가상화 켜고 끄기
   });
 
   return (
     <div className={cn("flex flex-col h-full space-y-2", className)}>
       {/* [헤더 영역] 제목 및 동적 총 건수 표시 */}
       {(title || data.length >= 0) && (
-        <div className="flex gap-2 items-end">
+        <div className="flex gap-2 items-center">
           {title && (
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            <h1 className="text-base font-bold tracking-tight text-foreground">
               {title}
             </h1>
           )}
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm text-muted-foreground ">
             {description ? `${description} ` : ""}총{" "}
             <span className="font-bold text-primary">
               {data.length.toLocaleString()}
@@ -194,7 +194,7 @@ export function AckDataTable<TData, TValue>({
           // 가상화 혹은 페이징 비활성 시 부모 높이에 꽉 차도록 설정
           (!enablePagination || enableVirtualization) &&
             "[&>div]:h-full [&>div]:overflow-auto",
-          containerClassName
+          containerClassName,
         )}
       >
         <div ref={parentRef} className="relative w-full overflow-auto h-full">
@@ -211,14 +211,14 @@ export function AckDataTable<TData, TValue>({
                       key={header.id}
                       className={cn(
                         "whitespace-nowrap font-semibold text-foreground bg-muted border-r last:border-r-0 text-center",
-                        header.column.getCanSort() && "select-none"
+                        header.column.getCanSort() && "select-none",
                       )}
                     >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
                   ))}
@@ -249,7 +249,7 @@ export function AckDataTable<TData, TValue>({
                       <tr>
                         <td
                           style={{
-                            height: `${rowVirtualizer.getVirtualItems()[0].start}px`
+                            height: `${rowVirtualizer.getVirtualItems()[0].start}px`,
                           }}
                         />
                       </tr>
@@ -279,7 +279,7 @@ export function AckDataTable<TData, TValue>({
                               rowVirtualizer.getVirtualItems()[
                                 rowVirtualizer.getVirtualItems().length - 1
                               ].end
-                            }px`
+                            }px`,
                           }}
                         />
                       </tr>
