@@ -7,9 +7,17 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from "@/components/ui/select";
 import { AckLabel } from "./acklabel"; // AckLabel 경로 확인
+import { AlertCircle } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 export interface AckSelectOption {
   label: string;
   value: string;
@@ -46,17 +54,38 @@ export function AckSelect({
   disabled,
   className,
   triggerClassName,
+  onValueChange, // 💡 props에서 onValueChange 추출
   ...props
 }: AckSelectProps) {
   const generatedId = React.useId();
-  const id = props.name || generatedId; // name 속성이 있으면 id로 우선 사용
+  const id = props.name || generatedId;
+
+  // 💡 [핵심 추가] 에러를 컴포넌트 내부에서 즉각적으로 해제하기 위한 로컬 상태
+  const [localError, setLocalError] = React.useState<string | undefined>(error);
+
+  // 💡 외부에서 error 프롭이 들어오거나 바뀔 때마다 로컬 상태와 동기화
+  React.useEffect(() => {
+    setLocalError(error);
+  }, [error]);
+
+  // 💡 아이템이 선택되었을 때 실행될 커스텀 핸들러
+  const handleValueChange = (value: string) => {
+    if (localError) {
+      setLocalError(undefined); // 선택하는 순간 에러 UI 즉시 해제
+    }
+
+    // 부모 컴포넌트에서 전달한 원래의 onValueChange가 있다면 실행해줌
+    if (onValueChange) {
+      onValueChange(value);
+    }
+  };
 
   return (
     <div
       className={cn(
         "flex sm:flex-row flex-col sm:items-center gap-1 sm:gap-2",
-        disabled && "opacity-50 pointer-events-none", // 💡 비활성화 시 흐리게 및 이벤트 차단
-        className
+        disabled && "opacity-50 pointer-events-none",
+        className,
       )}
     >
       {/* 1. 라벨 영역 */}
@@ -71,18 +100,55 @@ export function AckSelect({
       )}
 
       {/* 2. select 본체 및 에러 영역 */}
-      <div className="flex flex-col flex-1 max-w-full">
-        <Select disabled={disabled} {...props}>
+      <div className="relative flex-1 max-w-full">
+        <Select
+          disabled={disabled}
+          onValueChange={handleValueChange} // 💡 커스텀 핸들러 부착
+          {...props}
+        >
           <SelectTrigger
             id={id}
             className={cn(
-              "w-full sm:w-[180px]", // 기본 너비 설정 (triggerClassName으로 덮어쓰기 가능)
-              error && "border-destructive focus:ring-destructive",
+              "w-full sm:w-[180px]",
+
+              // 💡 1. 정상 상태 (에러가 없을 때만 파란색 링 적용)
+              !localError &&
+                "data-[state=open]:ring-1 data-[state=open]:ring-ring",
+
+              // 💡 2. 에러 상태 (빨간색 테두리 + 열렸을 때도 빨간색 링 유지)
+              localError &&
+                "border-destructive text-destructive focus:ring-destructive data-[state=open]:ring-1 data-[state=open]:ring-destructive",
+
               disabled && "cursor-not-allowed",
-              triggerClassName
+              triggerClassName,
             )}
           >
-            <SelectValue placeholder={placeholder} />
+            <div className="flex items-center gap-2 flex-1 min-w-0 mr-2">
+              <span className="truncate flex-1 text-left">
+                <SelectValue placeholder={placeholder} />
+              </span>
+
+              {/* 💡 error 대신 localError 사용 */}
+              {localError && (
+                <div onClick={(e) => e.stopPropagation()}>
+                  <TooltipProvider>
+                    <Tooltip delayDuration={200}>
+                      <TooltipTrigger asChild>
+                        <div className="h-4 w-4 flex items-center justify-center cursor-help">
+                          <AlertCircle className="h-4 w-4 text-destructive" />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent
+                        side="bottom"
+                        className="bg-destructive text-destructive-foreground border-destructive"
+                      >
+                        <p>{localError}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              )}
+            </div>
           </SelectTrigger>
           <SelectContent>
             {options.map((option) => (
@@ -92,13 +158,6 @@ export function AckSelect({
             ))}
           </SelectContent>
         </Select>
-
-        {/* 3. 에러 메시지 */}
-        {error && (
-          <p className="text-[0.8rem] font-medium text-destructive mt-1">
-            {error}
-          </p>
-        )}
       </div>
     </div>
   );

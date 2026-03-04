@@ -82,7 +82,11 @@ export default function TabControlPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <AckDatePicker label="생년월일" mode="single" />
-                <AckInput label="주소" placeholder="주소를 입력하세요" />
+                <AckInput
+                  label="주 소"
+                  placeholder="주소를 입력하세요"
+                  className="sm:w-full"
+                />
                 <AckCheckbox
                   label="이메일 수신 동의"
                   description="뉴스레터 및 이벤트 정보를 수신합니다."

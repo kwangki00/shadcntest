@@ -98,6 +98,11 @@ export default function DashboardPage() {
               required
               disabled
             />
+            <AckDatePicker
+              label="기간 선택 (에러)"
+              mode="range"
+              error="기간을 선택해주세요."
+            />
             <div className=" border-t-purple-300 border-t-[1px] mt-3"></div>
           </div>
           {/*🔶Inputbox */}
@@ -114,10 +119,22 @@ export default function DashboardPage() {
               <AckInput
                 label="텍 스 트"
                 placeholder="검색조건"
-                className="sm:w-[10rem]"
+                className="sm:w-full"
               />
               <AckInput label="아이디" required placeholder="아이디" />
               <AckInput label="아이디" required placeholder="아이디" disabled />
+              <AckInput
+                label="숫 자 만"
+                placeholder="숫자만 입력 가능"
+                numeric
+              />
+              <AckInput
+                label="비밀번호"
+                type="password"
+                required
+                placeholder="비밀번호"
+                error="비밀번호를 입력해주세요."
+              />
             </div>
             <div className=" border-t-purple-300 border-t-[1px] mt-3"></div>
           </div>
@@ -164,6 +181,11 @@ export default function DashboardPage() {
                 orientation="vertical"
                 defaultValue="basic"
                 error="플랜을 선택해 주세요."
+              />
+              <AckRadio
+                label="가로 정렬 (에러)"
+                options={GENDER_OPTIONS}
+                error="필수 선택 항목입니다."
               />
               <AckRadio
                 label="성 별"
@@ -248,6 +270,14 @@ export default function DashboardPage() {
               description="(다중 선택 가능)"
               disabled
               required
+            />
+            <AckMultiSelect
+              label="기술 스택 (에러)"
+              options={SKILL_OPTIONS}
+              value={[]}
+              onChange={() => {}}
+              placeholder="기술을 선택해주세요"
+              error="최소 하나 이상의 기술을 선택해야 합니다."
             />
             {/* 결과 확인용 */}
             <div className="text-sm text-muted-foreground mt-4">
