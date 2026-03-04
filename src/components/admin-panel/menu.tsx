@@ -15,12 +15,16 @@ import {
   TooltipContent,
   TooltipProvider,
 } from "@/components/ui/tooltip";
+import { useTabStore } from "@/hooks/use-tab-store";
+import { useRouter } from "next/navigation";
 
 interface MenuProps {
   isOpen: boolean | undefined;
 }
 
 export function Menu({ isOpen }: MenuProps) {
+  const { addTab } = useTabStore();
+  const router = useRouter();
   const pathname = usePathname();
   const menuList = getMenuList(pathname);
 
@@ -58,6 +62,12 @@ export function Menu({ isOpen }: MenuProps) {
                         <Tooltip delayDuration={100}>
                           <TooltipTrigger asChild>
                             <Button
+                              onClick={(e) => {
+                                // Link의 기본 이동 방지 (필요시) 및 탭 추가
+                                // e.preventDefault(); // Next.js 라우팅을 완전히 막고 싶다면 주석 해제
+                                addTab({ id: href, label: label, href: href });
+                                // router.push(href); // URL 동기화가 필요하다면 유지
+                              }}
                               variant={
                                 (active === undefined &&
                                   pathname.startsWith(href)) ||
