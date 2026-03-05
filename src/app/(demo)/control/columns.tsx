@@ -64,7 +64,7 @@ export const paymentColumns: ColumnDef<Payment>[] = [
       </div>
     ),
     enableSorting: false,
-    enableHiding: false
+    enableHiding: false,
   },
   // (2) ID
   {
@@ -77,8 +77,8 @@ export const paymentColumns: ColumnDef<Payment>[] = [
       />
     ),
     cell: ({ row }) => (
-      <div className="text-center text-xs font-mono">{row.getValue("id")}</div>
-    )
+      <div className="text-center text-xs">{row.getValue("id")}</div>
+    ),
   },
   // (3) 결제 상태
   {
@@ -99,7 +99,7 @@ export const paymentColumns: ColumnDef<Payment>[] = [
         success: "default",
         pending: "outline",
         processing: "secondary",
-        failed: "destructive"
+        failed: "destructive",
       };
       return (
         <div className="flex justify-center">
@@ -111,7 +111,7 @@ export const paymentColumns: ColumnDef<Payment>[] = [
           </Badge>
         </div>
       );
-    }
+    },
   },
   // (4) 고객명
   {
@@ -124,10 +124,8 @@ export const paymentColumns: ColumnDef<Payment>[] = [
       />
     ),
     cell: ({ row }) => (
-      <div className="text-center font-medium">
-        {row.getValue("customerName")}
-      </div>
-    )
+      <div className="text-center ">{row.getValue("customerName")}</div>
+    ),
   },
   // (5) 이메일
   {
@@ -143,7 +141,7 @@ export const paymentColumns: ColumnDef<Payment>[] = [
       <div className="text-center text-muted-foreground">
         {row.getValue("email")}
       </div>
-    )
+    ),
   },
   // (6) 결제 금액 (우측 정렬 필수)
   {
@@ -163,7 +161,7 @@ export const paymentColumns: ColumnDef<Payment>[] = [
           {amount.toLocaleString()}원
         </div>
       );
-    }
+    },
   },
   // (7) 순수익 (강조 컬러)
   {
@@ -183,7 +181,7 @@ export const paymentColumns: ColumnDef<Payment>[] = [
           {netAmount.toLocaleString()}원
         </div>
       );
-    }
+    },
   },
   // (8) 수수료
   {
@@ -199,7 +197,7 @@ export const paymentColumns: ColumnDef<Payment>[] = [
       <div className="text-right text-destructive pr-2">
         -{row.original.fee.toLocaleString()}원
       </div>
-    )
+    ),
   },
   // (9) 부가세
   {
@@ -215,7 +213,7 @@ export const paymentColumns: ColumnDef<Payment>[] = [
       <div className="text-right text-muted-foreground pr-2">
         {row.original.vat.toLocaleString()}원
       </div>
-    )
+    ),
   },
   // (10) 결제수단
   {
@@ -229,7 +227,7 @@ export const paymentColumns: ColumnDef<Payment>[] = [
     ),
     cell: ({ row }) => (
       <div className="text-center">{row.getValue("method")}</div>
-    )
+    ),
   },
   // (11) 카드사
   {
@@ -245,7 +243,7 @@ export const paymentColumns: ColumnDef<Payment>[] = [
       <div className="text-center whitespace-nowrap">
         {row.getValue("cardCompany")}
       </div>
-    )
+    ),
   },
   // (12) 카드번호
   {
@@ -261,7 +259,7 @@ export const paymentColumns: ColumnDef<Payment>[] = [
       <div className="text-center text-xs text-muted-foreground italic">
         {row.getValue("cardNumber")}
       </div>
-    )
+    ),
   },
   // (13) 플랜
   {
@@ -277,7 +275,7 @@ export const paymentColumns: ColumnDef<Payment>[] = [
       <div className="text-center">
         <Badge variant="outline">{row.getValue("plan")}</Badge>
       </div>
-    )
+    ),
   },
   // (14) 주문번호
   {
@@ -293,7 +291,7 @@ export const paymentColumns: ColumnDef<Payment>[] = [
       <div className="text-center text-xs truncate max-w-[120px]">
         {row.getValue("orderNo")}
       </div>
-    )
+    ),
   },
   // (15) 지역
   {
@@ -307,7 +305,7 @@ export const paymentColumns: ColumnDef<Payment>[] = [
     ),
     cell: ({ row }) => (
       <div className="text-center text-xs">{row.getValue("region")}</div>
-    )
+    ),
   },
   // (16) 통화
   {
@@ -323,7 +321,7 @@ export const paymentColumns: ColumnDef<Payment>[] = [
       <div className="text-center font-semibold">
         {row.getValue("currency")}
       </div>
-    )
+    ),
   },
   // (17) 연락처
   {
@@ -337,7 +335,7 @@ export const paymentColumns: ColumnDef<Payment>[] = [
     ),
     cell: ({ row }) => (
       <div className="text-center text-xs">{row.getValue("phone")}</div>
-    )
+    ),
   },
   // (18) IP 주소
   {
@@ -353,7 +351,7 @@ export const paymentColumns: ColumnDef<Payment>[] = [
       <div className="text-center text-xs text-muted-foreground">
         {row.getValue("ipAddress")}
       </div>
-    )
+    ),
   },
   // (19) 기기 환경
   {
@@ -372,7 +370,7 @@ export const paymentColumns: ColumnDef<Payment>[] = [
       >
         {row.getValue("userAgent")}
       </div>
-    )
+    ),
   },
   // (20) 결제 일시
   {
@@ -389,6 +387,6 @@ export const paymentColumns: ColumnDef<Payment>[] = [
       <div className="text-center whitespace-nowrap text-xs">
         {format(new Date(row.getValue("createdAt")), "yyyy-MM-dd HH:mm")}
       </div>
-    )
-  }
+    ),
+  },
 ];

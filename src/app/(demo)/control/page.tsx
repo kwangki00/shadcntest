@@ -5,7 +5,7 @@ import { AckDataTable } from "@/components/controls/ackdatatable";
 import { paymentColumns, Payment } from "./columns";
 
 // ==========================================
-// 💡 [추가] 100개의 샘플 결제 데이터를 무작위로 생성하는 함수
+// 💡 [추가] 1000개의 샘플 결제 데이터를 무작위로 생성하는 함수
 // ==========================================
 function generateMockPayments(count: number): Payment[] {
   return Array.from({ length: count }, (_, index) => {
@@ -33,7 +33,7 @@ function generateMockPayments(count: number): Payment[] {
       phone: "010-1234-5678",
       ipAddress: "127.0.0.1",
       userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebkit/537.36",
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
   });
 }
